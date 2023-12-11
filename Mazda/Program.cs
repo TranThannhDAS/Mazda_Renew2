@@ -3,6 +3,7 @@ using Mazda;
 using Mazda.Controllers;
 using Mazda.Data.AboutUs;
 using Mazda.Data.Repository;
+using Mazda.Data.Services;
 using Mazda.Data.UnitofWork;
 using Mazda.Helper;
 using Mazda.Helper.Cache;
@@ -77,6 +78,7 @@ builder.Services.AddScoped<IUnitofWork, UnitofWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 builder.Services.AddScoped<CategoryTypeController>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<CategoryController>();
 builder.Services.AddScoped<ICache, Cache>();
 builder.Services.AddMemoryCache();

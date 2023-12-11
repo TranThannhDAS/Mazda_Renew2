@@ -1,5 +1,8 @@
-﻿using Mazda.Base;
+﻿using AutoMapper;
+using Mazda.Base;
+using Mazda.Data.Services;
 using Mazda.Data.UnitofWork;
+using Mazda.Dtos.User;
 using Mazda.Model;
 using Mazda_Api.Controllers;
 using Mazda_Api.Dtos;
@@ -10,6 +13,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -19,8 +24,26 @@ namespace Mazda.Controllers
 {
     public class UserController : BaseController
     {
-        public UserController(IUnitofWork unitofWork, DataContext dataContext, IConfiguration configuration) : base(unitofWork, dataContext, configuration)
+        private readonly SmtpClient _smtpClient;
+        private IMapper mapper;
+        private readonly IUserService userService;
+        public UserController(IUnitofWork unitofWork, DataContext dataContext, IConfiguration configuration, IUserService userService) : base(unitofWork, dataContext, configuration)
         {
+            this.userService = userService;
+
+            _smtpClient = new SmtpClient
+            {
+                Host = Configuration["SmtpConfig:SmtpServer"],
+                Port = int.Parse(Configuration["SmtpConfig:Port"]),
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(
+                    Configuration["SmtpConfig:Username"],
+                    Configuration["SmtpConfig:Password"]
+                ),
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network
+            };
+            this.mapper = mapper;
         }
 
         [HttpPost]
@@ -53,7 +76,6 @@ namespace Mazda.Controllers
                     message = "Bạn không có quyền"
                 });
             }
-          
         }
         [HttpGet]
         public async Task<IActionResult> DeleteById(UserDeleteDto userDeleteDto)
@@ -92,8 +114,8 @@ namespace Mazda.Controllers
             var checkUsername = await DataContext.Users.Where(query => query.UserName.Equals(userDto.Username)).FirstOrDefaultAsync();
             if (checkUsername != null)
             {
-              var pass = BCrypt.Net.BCrypt.Verify(userDto.Password, checkUsername.Pass);
-              if(pass)
+                var pass = BCrypt.Net.BCrypt.Verify(userDto.Password, checkUsername.Pass);
+                if (pass)
                 {
                     var authClaims = new List<Claim>
                 {
@@ -107,7 +129,7 @@ namespace Mazda.Controllers
                     checkUsername.ExpireTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
                     await UnitofWork.Repository<User>().Update(checkUsername);
                     int check = await UnitofWork.Complete();
-                    if(check > 0)
+                    if (check > 0)
                     {
                         return Ok(new
                         {
@@ -140,6 +162,156 @@ namespace Mazda.Controllers
 
             }
             return BadRequest();
+        }
+
+        //ForgotPass
+        [AllowAnonymous]
+        [HttpPost]
+
+        public async Task<IActionResult> SendForgotPasswordEmail([FromBody] ForgotPass request)
+        {
+
+            var isEmail = await DataContext.Users.FirstOrDefaultAsync(u => u.UserName == request.UserName);
+
+            if (isEmail == null)
+            {
+                return BadRequest("Email not Found");
+            }
+
+            var conformatCode = GenerateRandomCode();
+            request.expireTime = DateTime.UtcNow.AddMinutes(2);
+            request.Code = conformatCode;
+
+            await DataContext.ForgotPasses.AddAsync(request);
+            await DataContext.SaveChangesAsync();
+
+            SendConfirmationEmail(isEmail.UserName, conformatCode);
+
+
+
+
+
+            return Ok(
+               new { message = "A confirmation email has been sent to your email address." }
+           );
+        }
+
+        // Verify code reset password
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult> VerifyCodeResetPassword(
+           [FromBody] ForgotPass request
+       )
+        {
+            var confirmCode = await DataContext.ForgotPasses
+                .Where(f => f.UserName == request.UserName && f.Code == request.Code)
+                .FirstOrDefaultAsync();
+
+            if (confirmCode is null)
+            {
+                return NotFound(new { message = "confirm code invalid" });
+            }
+
+            if (confirmCode.expireTime < DateTime.UtcNow)
+            {
+                DataContext.ForgotPasses.Remove(confirmCode);
+                await DataContext.SaveChangesAsync();
+                return NotFound(new { message = "The code has expired" });
+            }
+
+            DataContext.ForgotPasses.Remove(confirmCode);
+            await DataContext.SaveChangesAsync();
+            return Ok(new { message = "Comfirm successfully" });
+        }
+
+
+        // Delete confirm code
+        [HttpDelete]
+        [AllowAnonymous]
+        public async Task<ActionResult> DeleteConfirmCodeExpired()
+        {
+            DateTime currentTime = DateTime.UtcNow;
+
+            var ConfirmCodeExpired = DataContext.ForgotPasses
+                .Where(f => f.expireTime < currentTime)
+                .ToList();
+
+            if (ConfirmCodeExpired.Count == 0)
+            {
+                return NotFound(new { message = "Code is not found" });
+            }
+
+            foreach (var confirmCode in ConfirmCodeExpired)
+            {
+                DataContext.ForgotPasses.Remove(confirmCode);
+            }
+
+            await DataContext.SaveChangesAsync();
+
+            return Ok(new { message = "Delete successfully" });
+        }
+
+        // Send email comfirm code
+        private void SendConfirmationEmail(string email, string confirmationCode)
+        {
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(Configuration["SmtpConfig:Username"]),
+                Subject = "Xác nhận quên mật khẩu",
+                Body = $"Mã xác nhận của bạn là: {confirmationCode}",
+                IsBodyHtml = true
+            };
+
+            mailMessage.To.Add(email);
+
+            _smtpClient.Send(mailMessage);
+        }
+        // Code 
+        private string GenerateRandomCode()
+        {
+            Random random = new Random();
+            const string code = "0123456789";
+            return new string(
+               Enumerable.Repeat(code, 6).Select(s => s[random.Next(s.Length)]).ToArray()
+                );
+        }
+
+        [HttpPut]
+        [AllowAnonymous]
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePassworkDto user)
+        {
+            var validUser = await userService.IsValidUserAsync(user.Username, user.OldPassword);
+            if (validUser is null)
+            {
+                return Unauthorized(new { Message = "Incorret username or password !!" });
+
+            }
+            validUser.Pass = BCrypt.Net.BCrypt.HashPassword(user.NewPassword);
+            DataContext.Entry(validUser).State = EntityState.Modified;
+            await DataContext.SaveChangesAsync();
+
+
+
+
+            return Ok(new { Message = "Change password successfully" });
+        }
+
+        [HttpPut]
+        [AllowAnonymous]
+        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto user)
+        {
+            var validUser = await DataContext.Users.FirstOrDefaultAsync(u => u.UserName == user.Username);
+            if (validUser is null)
+            {
+                return Unauthorized(new { Message = "Incorrect username" });
+            }
+            var newPassword = BCrypt.Net.BCrypt.HashPassword("123456789");
+            validUser.Pass = newPassword;
+            DataContext.Users.Update(validUser);
+            await DataContext.SaveChangesAsync();
+
+
+            return Ok(new { Message = "Reset password successfully" });
         }
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
@@ -208,7 +380,8 @@ namespace Mazda.Controllers
                     accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
                     refreshToken = newRefreshToken
                 });
-            }catch(Exception ex) 
+            }
+            catch (Exception ex)
             {
                 throw new Exception("Có lỗi");
             }
@@ -235,7 +408,7 @@ namespace Mazda.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPaginationUser(Panigation panigation)
         {
-            var user = await DataContext.Users.Skip((panigation.PageIndex -1)* panigation.PageSize)
+            var user = await DataContext.Users.Skip((panigation.PageIndex - 1) * panigation.PageSize)
                        .Take(panigation.PageSize).ToListAsync();
             return Ok(user);
         }
