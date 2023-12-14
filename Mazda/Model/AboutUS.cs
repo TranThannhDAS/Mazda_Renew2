@@ -8,6 +8,7 @@
         public string? Phone {  get; set; }
         public string? Email { get; set; }
         public string? Url_Mess { get; set; }
+        public string? google_map { get;set; }
 
     }
 }

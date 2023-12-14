@@ -11,6 +11,7 @@ namespace Mazda.Model
         [Column(TypeName = "ntext")]
         public string? Description { get; set; }
         public string? UrlShoppe { get; set; }
+        public string? code { get; set; }
         public int CategoryId { get; set; }
         public Category? Category { get; set; }
 

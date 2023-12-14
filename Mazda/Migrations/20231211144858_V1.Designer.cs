@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mazda.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231126160932_V3")]
-    partial class V3
+    [Migration("20231211144858_V1")]
+    partial class V1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,12 +65,13 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("ntext");
 
-                    b.Property<string>("Description_Short")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("Create_Date")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("UrlYoutube")
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -126,16 +127,14 @@ namespace Mazda.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("expireTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("expireTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -154,12 +153,9 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("ntext");
 
-                    b.Property<string>("Description_Short")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UrlYoutube")
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -181,10 +177,7 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Discount")
-                        .HasColumnType("int");
+                        .HasColumnType("ntext");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -193,7 +186,10 @@ namespace Mazda.Migrations
                     b.Property<double?>("Price")
                         .HasColumnType("float");
 
-                    b.Property<string>("Url")
+                    b.Property<double?>("Price_After")
+                        .HasColumnType("float");
+
+                    b.Property<string>("UrlShoppe")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

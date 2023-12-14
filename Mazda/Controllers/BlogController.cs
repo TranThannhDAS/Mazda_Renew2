@@ -11,6 +11,8 @@ using Mazda_Api.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mazda.Dtos.Blog;
+using Mazda.Dtos.Guide;
+using System;
 
 namespace Mazda.Controllers
 {
@@ -33,7 +35,12 @@ namespace Mazda.Controllers
             var categoryId = await categoryController.GetCategoryId(createBlogDto.CategoryName);
             var blog = mapper.Map<CreateBlogDto, Blog>(createBlogDto);
             blog.CategoryId = categoryId;
-            var images = await imageService.Upload_Image(createBlogDto.Name, createBlogDto.CategoryName, createBlogDto.FormCollection);
+            if (createBlogDto.FormCollection is not null)
+            {
+                string code = imageService.GenerateRandomString();
+                var images = await imageService.Upload_Image(code, createBlogDto.FormCollection);
+                blog.code = code;
+            }
             await UnitofWork.Repository<Blog>().AddAsync(blog);
             var check = await UnitofWork.Complete();
             if (check > 0)
@@ -54,7 +61,7 @@ namespace Mazda.Controllers
             {
                 return BadRequest("Không tìm thấy Blog");
             }
-            var images = await imageService.Update_Image(updateBlogDto.Name, existingBlog.Name, updateBlogDto.CategoryName, updateBlogDto.Paths, updateBlogDto.FormCollection);
+            var images = await imageService.Update_Image(existingBlog.code,updateBlogDto.Paths, updateBlogDto.FormCollection);
             existingBlog.Name = updateBlogDto.Name;
             existingBlog.Content = updateBlogDto.Content;
             existingBlog.CategoryId = updateBlogDto.CategoryId;
@@ -78,7 +85,7 @@ namespace Mazda.Controllers
                 return BadRequest("Không tìm thấy Blog");
             }
             var categoryName = await categoryController.GetCategoryType(existingBlog.CategoryId);
-            var images = imageService.DeleteImage(existingBlog.Name, categoryName);
+            var images = imageService.DeleteImage(existingBlog.code);
             await UnitofWork.Repository<Blog>().Delete(existingBlog);
 
             var check = await UnitofWork.Complete();
@@ -104,7 +111,7 @@ namespace Mazda.Controllers
             {
                 Blog = existingBlog,
                 CategoryName = categoryName,
-                UrlImage = imageService.GetUrlImage(existingBlog.Name, categoryName)
+                UrlImage = imageService.GetUrlImage(existingBlog.code)
             });
         }
         [HttpPost]
@@ -131,10 +138,11 @@ namespace Mazda.Controllers
                 string categoryName = await categoryController.GetCategoryType(item.CategoryId);
                 var data_product = new BlogPanigationDto
                 {
+                    Id = item.Id,
                     Name = item.Name,
                     CategoryName = categoryName,
                     Content = item.Content,
-                    UrlImage = imageService.GetUrlImage(item.Name, categoryName)
+                    UrlImage = imageService.GetUrlImage(item.code)
                 };
                 result.Add(data_product);
             }

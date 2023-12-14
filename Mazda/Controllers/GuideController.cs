@@ -11,6 +11,7 @@ using Mazda_Api.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mazda.Dtos.Guide;
+using Mazda.Dtos.Product;
 
 namespace Mazda.Controllers
 {
@@ -33,7 +34,12 @@ namespace Mazda.Controllers
             var categoryId = await categoryController.GetCategoryId(createGuideDto.CategoryName);
             var guide = mapper.Map<CreateGuideDto, Guide>(createGuideDto);
             guide.CategoryId = categoryId;
-            var images = await imageService.Upload_Image(createGuideDto.Name, createGuideDto.CategoryName, createGuideDto.FormCollection);
+            if (createGuideDto.FormCollection is not null)
+            {
+                string code = imageService.GenerateRandomString();
+                var images = await imageService.Upload_Image(code, createGuideDto.FormCollection);
+                guide.code = code;
+            }
             await UnitofWork.Repository<Guide>().AddAsync(guide);
             var check = await UnitofWork.Complete();
             if (check > 0)
@@ -52,9 +58,9 @@ namespace Mazda.Controllers
             var existingGuide = await UnitofWork.Repository<Blog>().GetByIdAsync(guide.Id);
             if (existingGuide == null)
             {
-                return BadRequest("Không tìm thấy Blog");
+                return BadRequest("Không tìm thấy Guide");
             }
-            var images = await imageService.Update_Image(updateGuideDto.Name, existingGuide.Name, updateGuideDto.CategoryName, updateGuideDto.Paths, updateGuideDto.FormCollection);
+            var images = await imageService.Update_Image(existingGuide.code, updateGuideDto.Paths, updateGuideDto.FormCollection);
             existingGuide.Name = updateGuideDto.Name;
             existingGuide.Content = updateGuideDto.Content;
             existingGuide.CategoryId = updateGuideDto.CategoryId;
@@ -75,10 +81,10 @@ namespace Mazda.Controllers
             var existingGuide = await UnitofWork.Repository<Guide>().GetByIdAsync(id);
             if (existingGuide == null)
             {
-                return BadRequest("Không tìm thấy Blog");
+                return BadRequest("Không tìm thấy Guide");
             }
             var categoryName = await categoryController.GetCategoryType(existingGuide.CategoryId);
-            var images = imageService.DeleteImage(existingGuide.Name, categoryName);
+            var images = imageService.DeleteImage(existingGuide.code);
             await UnitofWork.Repository<Guide>().Delete(existingGuide);
 
             var check = await UnitofWork.Complete();
@@ -97,14 +103,14 @@ namespace Mazda.Controllers
             var existingGuide = await UnitofWork.Repository<Guide>().GetByIdAsync(id);
             if (existingGuide == null)
             {
-                return BadRequest("Không tìm thấy product");
+                return BadRequest("Không tìm thấy Guide");
             }
             var categoryName = await categoryController.GetCategoryType(existingGuide.CategoryId);
             return Ok(new
             {
                 Guide = existingGuide,
                 CategoryName = categoryName,
-                UrlImage = imageService.GetUrlImage(existingGuide.Name, categoryName)
+                UrlImage = imageService.GetUrlImage(existingGuide.code)
             });
         }
         [HttpPost]
@@ -135,7 +141,7 @@ namespace Mazda.Controllers
                     Name = item.Name,
                     CategoryName = categoryName,
                     Content = item.Content,
-                    UrlImage = imageService.GetUrlImage(item.Name, categoryName)
+                    UrlImage = imageService.GetUrlImage(item.code)
                 };
                 result.Add(data_product);
             }

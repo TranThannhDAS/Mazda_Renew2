@@ -48,6 +48,7 @@ namespace Mazda_Api.Controllers
                     return NotFound("Không tìm thấy");
                 }
                 existingAboutUs.Name = aboutUS.Name;
+                existingAboutUs.google_map = aboutUS.google_map;
                 existingAboutUs.Address = aboutUS.Address;
                 existingAboutUs.Url_Mess = aboutUS.Url_Mess;
                 existingAboutUs.Phone = aboutUS.Phone;

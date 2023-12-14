@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mazda.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231110180426_V1")]
-    partial class V1
+    [Migration("20231213162221_V2")]
+    partial class V2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,12 +65,16 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
+                        .HasColumnType("ntext");
+
+                    b.Property<DateTime?>("Create_Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description_Short")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UrlYoutube")
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -88,10 +92,7 @@ namespace Mazda.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Category_Type")
+                    b.Property<int>("CategoryTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -129,16 +130,14 @@ namespace Mazda.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("expireTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("expireTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -157,12 +156,12 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
+                        .HasColumnType("ntext");
+
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description_Short")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UrlYoutube")
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -184,15 +183,22 @@ namespace Mazda.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("ntext");
 
-                    b.Property<int?>("Discount")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double?>("Price")
                         .HasColumnType("float");
 
-                    b.Property<string>("Url")
+                    b.Property<double?>("Price_After")
+                        .HasColumnType("float");
+
+                    b.Property<string>("UrlShoppe")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -244,7 +250,9 @@ namespace Mazda.Migrations
                 {
                     b.HasOne("Mazda.Model.CategoryType", "CategoryType")
                         .WithMany()
-                        .HasForeignKey("CategoryTypeId");
+                        .HasForeignKey("CategoryTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CategoryType");
                 });

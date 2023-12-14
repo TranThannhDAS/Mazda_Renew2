@@ -71,6 +71,9 @@ namespace Mazda.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("code")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -155,6 +158,9 @@ namespace Mazda.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("code")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -187,6 +193,9 @@ namespace Mazda.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("UrlShoppe")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

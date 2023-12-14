@@ -39,7 +39,12 @@ namespace Mazda.Controllers
             var categoryId = await categoryController.GetCategoryId(productDto.CategoryName);
             var product = mapper.Map<ProductDto, Product>(productDto);
             product.CategoryId = categoryId;
-            var images = await imageService.Upload_Image(productDto.Name, productDto.CategoryName, productDto.FormCollection);
+            if(productDto.FormCollection is not null)
+            {
+                string code = imageService.GenerateRandomString();
+                var images = await imageService.Upload_Image(code, productDto.FormCollection);
+                product.code = code;
+            }
             await UnitofWork.Repository<Product>().AddAsync(product);
             var check = await UnitofWork.Complete();
             if (check > 0)
@@ -61,7 +66,7 @@ namespace Mazda.Controllers
                 return BadRequest("Không tìm thấy product");
             }
             //lấy CategoryName
-            var images = await imageService.Update_Image(productUpdateDto.Name, existingProduct.Name, productUpdateDto.CategoryName, productUpdateDto.Paths, productUpdateDto.FormCollection);
+            var images = await imageService.Update_Image(existingProduct.code, productUpdateDto.Paths, productUpdateDto.FormCollection);
             existingProduct.Name = productUpdateDto.Name;
             existingProduct.Price = productUpdateDto.Price;
             existingProduct.UrlShoppe = productUpdateDto.UrlShoppe;
@@ -88,7 +93,7 @@ namespace Mazda.Controllers
                 return BadRequest("Không tìm thấy product");
             }
             var categoryName = await categoryController.GetCategoryType(existingProduct.CategoryId);
-            var images = imageService.DeleteImage(existingProduct.Name, categoryName);
+            var images = imageService.DeleteImage(existingProduct.code);
             await UnitofWork.Repository<Product>().Delete(existingProduct);
 
             var check = await UnitofWork.Complete();
@@ -116,7 +121,7 @@ namespace Mazda.Controllers
                 Product = existingProduct,
                 CategoryName = categoryName,
                 Info_in_AboutUs = aboutUs,
-                UrlImage = imageService.GetUrlImage(existingProduct.Name, categoryName)
+                UrlImage = imageService.GetUrlImage(existingProduct.code)
             });
         }
         [HttpPost]
@@ -151,7 +156,7 @@ namespace Mazda.Controllers
                     Price_After = item.Price_After,
                     Price = item.Price,
                     UrlShoppe = item.UrlShoppe,
-                    UrlImage = imageService.GetUrlImage(item.Name, categoryName)
+                    UrlImage = imageService.GetUrlImage(item.code)
                 };
                 result.Add(data_product);
             }
