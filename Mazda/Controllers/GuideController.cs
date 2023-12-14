@@ -55,7 +55,7 @@ namespace Mazda.Controllers
         public async Task<IActionResult> Update([FromForm] UpdateGuideDto updateGuideDto)
         {
             var guide = mapper.Map<UpdateGuideDto, Guide>(updateGuideDto);
-            var existingGuide = await UnitofWork.Repository<Blog>().GetByIdAsync(guide.Id);
+            var existingGuide = await UnitofWork.Repository<Guide>().GetByIdAsync(guide.Id);
             if (existingGuide == null)
             {
                 return BadRequest("Không tìm thấy Guide");
@@ -64,7 +64,7 @@ namespace Mazda.Controllers
             existingGuide.Name = updateGuideDto.Name;
             existingGuide.Content = updateGuideDto.Content;
             existingGuide.CategoryId = updateGuideDto.CategoryId;
-            await UnitofWork.Repository<Blog>().Update(existingGuide);
+            await UnitofWork.Repository<Guide>().Update(existingGuide);
             int check = await UnitofWork.Complete();
             if (check > 0)
             {
