@@ -221,6 +221,9 @@ namespace Mazda.Controllers
 
             DataContext.ForgotPasses.Remove(confirmCode);
             await DataContext.SaveChangesAsync();
+            var reset = new ResetPasswordDto();
+            reset.Username = request.UserName;
+            var test =  ResetPassword(reset);
             return Ok(new { message = "Comfirm successfully" });
         }
 
@@ -296,7 +299,7 @@ namespace Mazda.Controllers
             return Ok(new { Message = "Change password successfully" });
         }
 
-        [HttpPut]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [AllowAnonymous]
         public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto user)
         {
