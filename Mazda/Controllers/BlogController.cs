@@ -131,8 +131,8 @@ namespace Mazda.Controllers
       .Take(panigation.PageSize)
       .AsQueryable();
 
-            int count = await DataContext.Blog.CountAsync();
-            var data = await product.ToListAsync();
+            int count = await product.CountAsync();
+            var data = await pagination_product.ToListAsync();
             foreach (var item in data)
             {
                 string categoryName = await categoryController.GetCategoryType(item.CategoryId);

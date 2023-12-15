@@ -130,7 +130,7 @@ namespace Mazda.Controllers
       .Take(panigation.PageSize)
       .AsQueryable();
 
-            int count = await DataContext.Guides.CountAsync();
+            int count = await guide.CountAsync();
             var data = await pagination_guide.ToListAsync();
             foreach (var item in data)
             {
