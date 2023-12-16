@@ -140,7 +140,7 @@ namespace Mazda.Controllers
                     }
                 }
             }
-            return BadRequest();
+            return Ok("FALSE");
         }
         [Authorize]
         [HttpGet("{username}")]
@@ -224,7 +224,7 @@ namespace Mazda.Controllers
             var reset = new ResetPasswordDto();
             reset.Username = request.UserName;
             var test =  ResetPassword(reset);
-            return Ok(new { message = "Comfirm successfully" });
+            return Ok(new { message = test });
         }
 
 
@@ -301,20 +301,20 @@ namespace Mazda.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [AllowAnonymous]
-        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto user)
+        public async Task<string> ResetPassword([FromBody] ResetPasswordDto user)
         {
-            var validUser = await DataContext.Users.FirstOrDefaultAsync(u => u.UserName == user.Username);
+            var validUser =  await DataContext.Users.FirstOrDefaultAsync(u => u.UserName == user.Username);
             if (validUser is null)
             {
-                return Unauthorized(new { Message = "Incorrect username" });
+                return "Khong tim thay username";
             }
             var newPassword = BCrypt.Net.BCrypt.HashPassword("123456789");
             validUser.Pass = newPassword;
-            DataContext.Users.Update(validUser);
-            await DataContext.SaveChangesAsync();
+             DataContext.Users.Update(validUser);
+             await DataContext.SaveChangesAsync();
 
 
-            return Ok(new { Message = "Reset password successfully" });
+            return  "Thanfh cong";
         }
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
