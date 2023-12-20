@@ -20,7 +20,7 @@ namespace Mazda_Api.Controllers
             return Ok(list);
         }
         [Authorize]
-        [HttpDelete]
+        [HttpPost]
         public  async Task<IActionResult> Create(AboutUS aboutUS)
         {
 
