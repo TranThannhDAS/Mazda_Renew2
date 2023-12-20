@@ -45,6 +45,9 @@ namespace Mazda.Migrations
                     b.Property<string>("Url_Mess")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("google_map")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ID");
 
                     b.ToTable("AboutUs");
@@ -116,6 +119,23 @@ namespace Mazda.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CategoryTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Sản phẩm"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Tin tức"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = " Hướng dẫn"
+                        });
                 });
 
             modelBuilder.Entity("Mazda.Model.ForgotPass", b =>

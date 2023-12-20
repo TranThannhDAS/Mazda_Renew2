@@ -9,6 +9,7 @@ using Mazda.Helper;
 using Mazda.Model;
 using Mazda_Api.Controllers;
 using Mazda_Api.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ namespace Mazda.Controllers
             GetInfoAboutUs = getInfoAboutUs;
             this.httpContextAccessor = httpContextAccessor;
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] ProductDto productDto)
         {
@@ -56,6 +58,8 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] ProductUpdateDto productUpdateDto)
         {
@@ -84,6 +88,8 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

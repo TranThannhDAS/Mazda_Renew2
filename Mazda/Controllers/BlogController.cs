@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Mazda.Dtos.Blog;
 using Mazda.Dtos.Guide;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mazda.Controllers
 {
@@ -29,6 +30,7 @@ namespace Mazda.Controllers
             this.categoryController = categoryController;
             GetInfoAboutUs = getInfoAboutUs;
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateBlogDto createBlogDto)
         {
@@ -52,6 +54,7 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] UpdateBlogDto updateBlogDto)
         {
@@ -76,6 +79,8 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

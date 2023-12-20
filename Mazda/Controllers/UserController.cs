@@ -45,7 +45,6 @@ namespace Mazda.Controllers
             };
             this.mapper = mapper;
         }
-
         [HttpPost]
         public async Task<IActionResult> Create(UserDto userDto)
         {
@@ -144,7 +143,6 @@ namespace Mazda.Controllers
         }
         [Authorize]
         [HttpGet("{username}")]
-
         public async Task<IActionResult> Logout(string username)
         {
             var checkUsername = await DataContext.Users.Where(query => query.UserName.Equals(username)).FirstOrDefaultAsync();
@@ -167,7 +165,6 @@ namespace Mazda.Controllers
         //ForgotPass
         [AllowAnonymous]
         [HttpPost]
-
         public async Task<IActionResult> SendForgotPasswordEmail([FromBody] ForgotPass request)
         {
 
@@ -186,10 +183,6 @@ namespace Mazda.Controllers
             await DataContext.SaveChangesAsync();
 
             SendConfirmationEmail(isEmail.UserName, conformatCode);
-
-
-
-
 
             return Ok(
                new { message = "A confirmation email has been sent to your email address." }

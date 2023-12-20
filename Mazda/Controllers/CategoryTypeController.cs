@@ -3,6 +3,7 @@ using Mazda.Base;
 using Mazda.Data.UnitofWork;
 using Mazda.Helper.Cache;
 using Mazda.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;

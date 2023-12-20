@@ -3,6 +3,7 @@ using Mazda.Data.UnitofWork;
 using Mazda.Model;
 using Mazda.Base;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mazda_Api.Controllers
 {
@@ -18,6 +19,7 @@ namespace Mazda_Api.Controllers
             var list = await UnitofWork.Repository<AboutUS>().GetAllAsync();
             return Ok(list);
         }
+        [Authorize]
         [HttpDelete]
         public  async Task<IActionResult> Create(AboutUS aboutUS)
         {
@@ -37,6 +39,8 @@ namespace Mazda_Api.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpPut]
         public  async Task<IActionResult> Update(AboutUS aboutUS)
         {

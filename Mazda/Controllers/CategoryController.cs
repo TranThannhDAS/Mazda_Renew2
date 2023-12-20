@@ -20,6 +20,7 @@ namespace Mazda_Api.Controllers
         {
             CategoryTypeController = categoryTypeController;
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
         {
@@ -39,6 +40,7 @@ namespace Mazda_Api.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> Update(Category category)
         {
@@ -60,6 +62,7 @@ namespace Mazda_Api.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mazda.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231211144858_V1")]
-    partial class V1
+    [Migration("20231220053359_V5")]
+    partial class V5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,9 @@ namespace Mazda.Migrations
                     b.Property<string>("Url_Mess")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("google_map")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ID");
 
                     b.ToTable("AboutUs");
@@ -72,6 +75,9 @@ namespace Mazda.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -116,6 +122,23 @@ namespace Mazda.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CategoryTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Sản phẩm"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Tin tức"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = " Hướng dẫn"
+                        });
                 });
 
             modelBuilder.Entity("Mazda.Model.ForgotPass", b =>
@@ -158,6 +181,9 @@ namespace Mazda.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("code")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -190,6 +216,9 @@ namespace Mazda.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("UrlShoppe")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("code")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

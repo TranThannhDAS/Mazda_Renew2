@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Mazda.Migrations
 {
     /// <inheritdoc />
-    public partial class V1 : Migration
+    public partial class V5 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +23,8 @@ namespace Mazda.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Url_Mess = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Url_Mess = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    google_map = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -101,6 +104,7 @@ namespace Mazda.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Create_Date = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Content = table.Column<string>(type: "ntext", nullable: true),
+                    code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -122,6 +126,7 @@ namespace Mazda.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Content = table.Column<string>(type: "ntext", nullable: true),
+                    code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -146,6 +151,7 @@ namespace Mazda.Migrations
                     Price_After = table.Column<double>(type: "float", nullable: true),
                     Description = table.Column<string>(type: "ntext", nullable: true),
                     UrlShoppe = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -157,6 +163,16 @@ namespace Mazda.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "CategoryTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Sản phẩm" },
+                    { 2, "Tin tức" },
+                    { 3, " Hướng dẫn" }
                 });
 
             migrationBuilder.CreateIndex(

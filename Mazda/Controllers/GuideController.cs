@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mazda.Dtos.Guide;
 using Mazda.Dtos.Product;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Mazda.Controllers
 {
@@ -28,6 +29,8 @@ namespace Mazda.Controllers
             this.categoryController = categoryController;
             GetInfoAboutUs = getInfoAboutUs;
         }
+        [Authorize]
+
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateGuideDto createGuideDto)
         {
@@ -51,6 +54,8 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] UpdateGuideDto updateGuideDto)
         {
@@ -75,6 +80,8 @@ namespace Mazda.Controllers
             }
             return BadRequest("Lỗi không thêm");
         }
+        [Authorize]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
