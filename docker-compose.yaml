@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  mazda_be:
+    container_name: mazda_be_container
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "5217:80"
+    networks:
+      - mazda_network
+  mazda_db:
+    container_name: mazda_db_container
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "Datvip9x@"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+    volumes:
+      - mazda_db_data:/var/opt/mssql
+    networks:
+      - mazda_network
+
+networks:
+  mazda_network:
+    name: mazda_custom_network
+    driver: bridge
+
+volumes:
+  mazda_db_data:
