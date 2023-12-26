@@ -12,5 +12,7 @@ namespace Mazda.Dtos.Product
         public string? UrlYoutube { get; set; }
         public string CategoryName { get; set; }
         public IFormFileCollection? FormCollection { get; set; }
+        public IFormFileCollection? FormCollectionAvatar { get; set; }
+
     }
 }

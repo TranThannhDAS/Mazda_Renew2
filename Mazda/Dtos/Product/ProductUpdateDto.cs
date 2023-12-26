@@ -14,6 +14,8 @@ namespace Mazda.Dtos.Product
         public string CategoryName { get; set; }
         public List<string>? Paths { get; set; }
         public IFormFileCollection? FormCollection { get; set; }
+        public IFormFileCollection? FormCollectionAvatar { get; set; }
+
 
     }
 }

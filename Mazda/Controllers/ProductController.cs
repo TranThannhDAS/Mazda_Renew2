@@ -41,11 +41,15 @@ namespace Mazda.Controllers
             var categoryId = await categoryController.GetCategoryId(productDto.CategoryName);
             var product = mapper.Map<ProductDto, Product>(productDto);
             product.CategoryId = categoryId;
-            if(productDto.FormCollection is not null)
+            string code = imageService.GenerateRandomString();
+            if (productDto.FormCollection is not null)
             {
-                string code = imageService.GenerateRandomString();
                 var images = await imageService.Upload_Image(code, productDto.FormCollection);
                 product.code = code;
+            }
+            if(productDto.FormCollectionAvatar is not null)
+            {
+                var images = await imageService.Upload_Image(code+"avatar", productDto.FormCollectionAvatar);
             }
             await UnitofWork.Repository<Product>().AddAsync(product);
             var check = await UnitofWork.Complete();
@@ -69,8 +73,12 @@ namespace Mazda.Controllers
             {
                 return BadRequest("Không tìm thấy product");
             }
-            //lấy CategoryName
-            var images = await imageService.Update_Image(existingProduct.code, productUpdateDto.Paths, productUpdateDto.FormCollection);
+            //lấy CategoryName          
+                var images = await imageService.Update_Image(existingProduct.code, productUpdateDto.Paths, productUpdateDto.FormCollection);          
+            if(productUpdateDto.FormCollectionAvatar is not null)
+            {
+                var avatar = await imageService.Update_Image(existingProduct.code+ "avatar",null, productUpdateDto.FormCollectionAvatar);
+            }
             existingProduct.Name = productUpdateDto.Name;
             existingProduct.Price = productUpdateDto.Price;
             existingProduct.UrlShoppe = productUpdateDto.UrlShoppe;
@@ -100,6 +108,7 @@ namespace Mazda.Controllers
             }
             var categoryName = await categoryController.GetCategoryType(existingProduct.CategoryId);
             var images = imageService.DeleteImage(existingProduct.code);
+            var avatar = imageService.DeleteImage(existingProduct.code+"avatar");
             await UnitofWork.Repository<Product>().Delete(existingProduct);
 
             var check = await UnitofWork.Complete();
@@ -127,7 +136,8 @@ namespace Mazda.Controllers
                 Product = existingProduct,
                 CategoryName = categoryName,
                 Info_in_AboutUs = aboutUs,
-                UrlImage = imageService.GetUrlImage(existingProduct.code)
+                UrlImage = imageService.GetUrlImage(existingProduct.code),
+                Avatar = imageService.GetUrlImage(existingProduct.code+"avatar")
             });
         }
         [HttpPost]
@@ -162,7 +172,7 @@ namespace Mazda.Controllers
                     Price_After = item.Price_After,
                     Price = item.Price,
                     UrlShoppe = item.UrlShoppe,
-                    UrlImage = imageService.GetUrlImage(item.code)
+                    UrlImage = imageService.GetUrlImage(item.code+"avatar")
                 };
                 result.Add(data_product);
             }

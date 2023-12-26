@@ -338,7 +338,7 @@ namespace Mazda.Controllers
             {
                 if (tokenModel is null)
                 {
-                    return BadRequest("Invalid client request");
+                    return new ObjectResult(new { error = "Invalid client request" }) { StatusCode = 401 }; // Return 500 Internal Server Error
                 }
 
                 string? accessToken = tokenModel.AccessToken;
@@ -347,7 +347,7 @@ namespace Mazda.Controllers
                 var principal = GetPrincipalFromExpiredToken(accessToken);
                 if (principal == null)
                 {
-                    return BadRequest("Invalid access token or refresh token");
+                    return new ObjectResult(new { error = "Invalid client request" }) { StatusCode = 401 }; // Return 500 Internal Server Error
                 }
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -361,7 +361,7 @@ namespace Mazda.Controllers
 
                 if (user == null || user.RefreshToken != refreshToken || user.ExpireTime <= DateTime.Now)
                 {
-                    return BadRequest("Invalid access token or refresh token, cho người dùng login lại");
+                    return new ObjectResult(new { error = "Invalid client request" }) { StatusCode = 401 }; // Return 500 Internal Server Error
                 }
 
                 var newAccessToken = CreateToken(principal.Claims.ToList());

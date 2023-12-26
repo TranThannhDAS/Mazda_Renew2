@@ -164,7 +164,7 @@ namespace Mazda.Helper
             }
 
         }
-        public async Task<List<string>> Update_Image(string code, List<string> paths, IFormFileCollection fileCollection)
+        public async Task<List<string>> Update_Image(string code, List<string>? paths, IFormFileCollection fileCollection)
         {
             List<string> result = new List<string>();
 
@@ -355,6 +355,14 @@ namespace Mazda.Helper
                 .Select(s => s[random.Next(s.Length)]).ToArray());
             return randomString;
         }
+        //public String Update_Avatar(String code, IFormCollection collection)
+        //{
+        //    string Filepath = GetFilepath(code);
+        //    if(Directory.Exists(Filepath))
+        //    {
+
+        //    }
+        //}
     }
 
     public class ImageDto
