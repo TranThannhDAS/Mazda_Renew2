@@ -14,6 +14,8 @@ namespace Mazda
         public DbSet<ForgotPass> ForgotPasses { get; set; }
         public DbSet<Guide> Guides { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Button> Buttons { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CategoryType>().HasData(
