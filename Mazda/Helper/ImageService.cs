@@ -173,7 +173,7 @@ namespace Mazda.Helper
                 string Filepath = GetFilepath(code);
                 var image_path_fe = new List<string>();
                 var image_path_sever = new List<string>();
-                var same_image = new List<string>();
+                var diff_image = new List<string>();
                 var existing_path = new List<string>();
                 //Update toàn bộ ảnh DONE
                 if (paths == null)
@@ -213,11 +213,11 @@ namespace Mazda.Helper
                     {
                         image_path_sever.Add(image_sever);
                     }
-                    //tìm ảnh giống nhau và xóa nó
-                    same_image = image_path_sever.Intersect(image_path_fe).ToList();
-                    if (same_image.Count > 0)
+                    //tìm ảnh khác nhau và xóa nó
+                    diff_image = image_path_sever.Except(image_path_fe).ToList();
+                    if (diff_image.Count > 0)
                     {
-                        foreach (string element in same_image)
+                        foreach (string element in diff_image)
                         {
                             File.Delete(element);
                         }
