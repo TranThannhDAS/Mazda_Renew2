@@ -30,7 +30,6 @@ namespace Mazda.Controllers
             GetInfoAboutUs = getInfoAboutUs;
         }
         [Authorize]
-
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateGuideDto createGuideDto)
         {

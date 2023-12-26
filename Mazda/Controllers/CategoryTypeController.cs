@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net.WebSockets;
 
 namespace Mazda.Controllers
 {
@@ -135,7 +136,7 @@ namespace Mazda.Controllers
                     DictinoryCategoryType[item.Id] = item.Name;
                 }
             }
-            var result = DictinoryCategoryType.FirstOrDefault(pair => pair.Value.Equals(name));
+            var result = DictinoryCategoryType.Where(pair => pair.Value.Equals(name)).ToList();
             int targetKey = 0;
 
             if (result.Equals(default(KeyValuePair<int, string>)))
@@ -144,7 +145,11 @@ namespace Mazda.Controllers
             }
             else
             {
-                targetKey = result.Key;
+                foreach(var test in result)
+                {
+                    targetKey = test.Key;
+
+                }
                 Console.WriteLine($"Key of 'Three': {targetKey}");
             }
             return targetKey;

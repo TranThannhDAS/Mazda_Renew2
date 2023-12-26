@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
@@ -24,11 +23,17 @@ namespace Mazda.Helper
             try
             {
                 string Filepath = GetFilepath(random);
-                if (!Directory.Exists(Filepath))
+                try
                 {
-                    Directory.CreateDirectory(Filepath);
+                    if (!Directory.Exists(Filepath))
+                    {
+                        Directory.CreateDirectory(Filepath);
+                    }
                 }
-
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating directory: {ex.Message}");
+                }
                 var result = new List<string>();
                 if (fileCollection != null)
                 {
@@ -39,6 +44,40 @@ namespace Mazda.Helper
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+        static void CheckDirectoryAccess(string directoryPath)
+        {
+            try
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(directoryPath);
+
+                if (directoryInfo.Exists)
+                {
+                    // Kiểm tra quyền truy cập đọc
+                    if (directoryInfo.Exists && (directoryInfo.Attributes & FileAttributes.ReadOnly) != 0)
+                    {
+                        Console.WriteLine("Read-only access to the directory.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Read-write access to the directory.");
+                    }
+
+                    // Kiểm tra quyền truy cập thực thi
+                    if ((directoryInfo.Attributes & FileAttributes.Directory) != 0)
+                    {
+                        Console.WriteLine("Executable (can enter) access to the directory.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Directory does not exist.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking directory access: {ex.Message}");
             }
         }
 
@@ -62,7 +101,7 @@ namespace Mazda.Helper
                         string imagepath;
 
 
-                        imagepath = Filepath + "\\" + filename;
+                        imagepath = Path.Combine(Filepath,filename);
                         if (System.IO.File.Exists(imagepath))
                         {
                             string _Imageurl = hosturl + "/Upload/" + code_random + "/" + filename;
@@ -118,7 +157,8 @@ namespace Mazda.Helper
                     return "Xóa Thành Công";
                 }
                 return "Xóa ảnh chưa được thực thi";
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -138,7 +178,7 @@ namespace Mazda.Helper
                 //Update toàn bộ ảnh DONE
                 if (paths == null)
                 {
-                    if (Directory.Exists(Filepath))
+                    if (Directory.Exists(Filepath)) 
                     {
                         Directory.Delete(Filepath, true);
                     }
@@ -148,9 +188,17 @@ namespace Mazda.Helper
                 else
                 {
                     //Lấy đường dẫn FE truyền xuống và đưa vào trong mảng
+                    string cleanedData = "";
                     foreach (var path in paths)
                     {
-                        string cleanedData = path.Replace("\\\\", "\\");
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                        {
+                             cleanedData = path.Replace("////", "//");// Fix cho Linux
+                        }
+                        else
+                        {
+                             cleanedData = path.Replace("\\\\", "\\");
+                        }
 
                         string path_api = Path.Combine(Directory.GetCurrentDirectory(), cleanedData);
 
@@ -267,43 +315,51 @@ namespace Mazda.Helper
             return result;
         }
         public async Task<List<string>> ResizeImage(IFormFileCollection colllection, string path)
+        {
+            int width = 1000;
+            int height = 1000;
+            var result = new List<string>();
+            foreach (var file in colllection)
+            {
+                //đường dẫn ảnh
+                string imagepath = Path.Combine(path, file.FileName);
+                if (File.Exists(imagepath))
                 {
-                    int width = 2000;
-                    int height = 2000;
-                    var newImage = new Bitmap(width, height);
-                    var result = new List<string>();
-                    foreach (var file in colllection)
-                    {
+                    File.Delete(imagepath);
+                }
+                using(FileStream stream = System.IO.File.Create(imagepath))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                //var img = Image.FromFile(imagepath);
+                //var scaleImage = ImageResize.Scale(img, width, height);
+                //scaleImage.SaveAs(path+ "\\abc.jpg");
+                ////Image image = Image.FromStream(file.OpenReadStream(), true, true);
+                ////using (var a = Graphics.FromImage(newImage))
+                ////{
+                ////    a.DrawImage(image, 0, 0, width, height);
+                ////    newImage.Save(imagepath);
+                ////    result.Add(imagepath);
+                ////}
+                //img.Dispose();
+                //scaleImage.Dispose();
 
-                        //đường dẫn ảnh
-                        string imagepath = Path.Combine(path, file.FileName);
-                        if (File.Exists(imagepath))
-                        {
-                            File.Delete(imagepath);
-                        }
-                        Image image = Image.FromStream(file.OpenReadStream(), true, true);
-                        using (var a = Graphics.FromImage(newImage))
-                        {
-                            a.DrawImage(image, 0, 0, width, height);
-                            newImage.Save(imagepath);
-                            result.Add(imagepath);
-                        }
-                    }
-                    return result;
-                }
-                public  string GenerateRandomString(int length = 12)
-                {
-                    const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                    Random random = new Random();
-                    string randomString = new string(Enumerable.Repeat(chars, length)
-                        .Select(s => s[random.Next(s.Length)]).ToArray());
-                    return randomString;
-                }
             }
+            return result;
+        }
+        public string GenerateRandomString(int length = 12)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+            string randomString = new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+            return randomString;
+        }
+    }
 
     public class ImageDto
-        {
-            public string Image { get; set; }
-            public string Path { get; set; }
-        }
+    {
+        public string Image { get; set; }
+        public string Path { get; set; }
+    }
 }

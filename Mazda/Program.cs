@@ -17,16 +17,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(
-    opt =>
-        opt.AddPolicy(
-            name: "AllowLocalHost",
-            policy =>
-            {
-                policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
-            }
-        )
-);
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -100,5 +98,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<MiddleWareAuthentication>();
 app.MapControllers();
-app.UseCors("AllowLocalHost");
+app.UseCors("AllowAll");
 app.Run();
