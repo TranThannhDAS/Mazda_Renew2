@@ -67,7 +67,6 @@ namespace Mazda.Controllers
             var images = await imageService.Update_Image(existingBlog.code,updateBlogDto.Paths, updateBlogDto.FormCollection);
             existingBlog.Name = updateBlogDto.Name;
             existingBlog.Content = updateBlogDto.Content;
-            existingBlog.CategoryId = updateBlogDto.CategoryId;
             await UnitofWork.Repository<Blog>().Update(existingBlog);
             int check = await UnitofWork.Complete();
             if (check > 0)

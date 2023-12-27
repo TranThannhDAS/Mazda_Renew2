@@ -83,7 +83,6 @@ namespace Mazda.Controllers
             existingProduct.Price = productUpdateDto.Price;
             existingProduct.UrlShoppe = productUpdateDto.UrlShoppe;
             existingProduct.Price_After = productUpdateDto.Price_After;
-            existingProduct.CategoryId = productUpdateDto.CategoryId;
             existingProduct.Description = productUpdateDto.Description;
             await UnitofWork.Repository<Product>().Update(existingProduct);
             int check = await UnitofWork.Complete();
@@ -172,6 +171,7 @@ namespace Mazda.Controllers
                     Price_After = item.Price_After,
                     Price = item.Price,
                     UrlShoppe = item.UrlShoppe,
+                    CategoryName = categoryName,
                     UrlImage = imageService.GetUrlImage(item.code+"avatar")
                 };
                 result.Add(data_product);

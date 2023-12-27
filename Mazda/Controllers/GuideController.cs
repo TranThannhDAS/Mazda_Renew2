@@ -67,7 +67,6 @@ namespace Mazda.Controllers
             var images = await imageService.Update_Image(existingGuide.code, updateGuideDto.Paths, updateGuideDto.FormCollection);
             existingGuide.Name = updateGuideDto.Name;
             existingGuide.Content = updateGuideDto.Content;
-            existingGuide.CategoryId = updateGuideDto.CategoryId;
             await UnitofWork.Repository<Guide>().Update(existingGuide);
             int check = await UnitofWork.Complete();
             if (check > 0)

@@ -10,6 +10,7 @@ namespace Mazda.Dtos.Product
         public double? Price_After{ get; set; }
         public string? Description { get; set; }
         public string? UrlShoppe { get; set; }
+        public string? CategoryName { get; set; }
         public List<ImageDto> UrlImage { get; set; }
     }
 }
